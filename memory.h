@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 namespace cocochick{
+    //todo:add deleter
     template<typename T>
     class shared_ptr{
     public:
