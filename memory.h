@@ -1,6 +1,25 @@
 #pragma once
-#include <memory>
 namespace cocochick{
+    template<typename T>
+    typename std::remove_reference<T>::type&& move(T&& rhs)   noexcept{
+        return static_cast<typename std::remove_reference<T>::type&&>(rhs);
+    }
+    /**********notice!************/
+    /********Dont't do like this way!********/
+    /*
+    template<typename T>
+    T&& move(T&& rhs)   noexcept{
+        return rhs;
+    }
+
+    template<typename T>
+    T&& move(const T& rhs){
+        return static_cast<T&&>(rhs);
+    }
+    */
+    /***A left ref to right ref is a perfect transformation but a left ref to const needs a transformation***/
+    /***So move(a) will call the first one, not the secont one***/
+
     //todo:add deleter
     template<typename T>
     class shared_ptr{
@@ -59,7 +78,7 @@ namespace cocochick{
 
     template<typename T>
     shared_ptr<T>& shared_ptr<T>::operator=(shared_ptr&& rhs)   noexcept{
-        shared_ptr(std::move(rhs)).swap(*this);
+        shared_ptr(move(rhs)).swap(*this);
         return *this;
     }
 
@@ -106,9 +125,9 @@ namespace cocochick{
 
     template<typename T>
     void shared_ptr<T>::swap(shared_ptr<T>& rhs){
-        T* temp = std::move(rhs.pointer);
-        rhs.pointer = std::move(pointer);
-        pointer = std::move(temp);
+        T* temp = move(rhs.pointer);
+        rhs.pointer = move(pointer);
+        pointer = move(temp);
         std::swap(ref_num, rhs.ref_num);
     }
 
@@ -184,7 +203,7 @@ namespace cocochick{
     
     template<typename T, typename P>
     T* unique_ptr<T, P>::release(){
-        T* temp = std::move(pointer);
+        T* temp = move(pointer);
         pointer = nullptr;
         return temp;
     }
